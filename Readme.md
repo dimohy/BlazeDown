@@ -1,4 +1,4 @@
-Forked from EdCharbeneau/BlazeDown
+Forked from [EdCharbeneau/BlazeDown](https://gitgub.com/EdCharbeneau/BlazeDown)
 
 # BlazeDown
 
