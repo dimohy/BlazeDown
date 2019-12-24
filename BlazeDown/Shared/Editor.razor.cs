@@ -11,13 +11,13 @@ namespace BlazeDown.Shared
             AutoReset = false,
         };
 
-        [Parameter] protected string InitialValue { get; set; }
+        [Parameter] public string InitialValue { get; set; }
 
         private object finalValue;
 
-        [Parameter] EventCallback<UIChangeEventArgs> OnChange { get; set; }
+        [Parameter] public EventCallback<ChangeEventArgs> OnChange { get; set; }
 
-        protected void InputChanged(UIChangeEventArgs args) 
+        protected void InputChanged(ChangeEventArgs args) 
         {
             if (!debounceTimer.Enabled)
             {
@@ -29,7 +29,7 @@ namespace BlazeDown.Shared
             }
         }
 
-        private void ExtendDebounceTimer(UIChangeEventArgs args)
+        private void ExtendDebounceTimer(ChangeEventArgs args)
         {
             finalValue = args.Value;
             debounceTimer.Stop();
@@ -39,7 +39,7 @@ namespace BlazeDown.Shared
         private void StartDebounceTimer()
         {
             debounceTimer.Elapsed += (_, a) =>
-                OnChange.InvokeAsync(new UIChangeEventArgs { Type = "change", Value = finalValue });
+                OnChange.InvokeAsync(new ChangeEventArgs { Value = finalValue });
 
             debounceTimer.Start();
         }

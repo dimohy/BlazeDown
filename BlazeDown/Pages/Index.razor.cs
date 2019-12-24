@@ -11,17 +11,22 @@ namespace BlazeDown.Pages
         protected string FileUrl { get; set; }
         protected string ContentValue { get; set; }
 
-        protected void TextChanged(UIChangeEventArgs e)
+        protected void TextChanged(ChangeEventArgs e)
         {
             ContentValue = e.Value.ToString();
+            StateHasChanged();
         }
 
-        protected async override Task OnInitAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            ContentValue = await GetContentFromUrl("/sample-data/example.md");
+            if (firstRender == true)
+            {
+                ContentValue = await GetContentFromUrl("/sample-data/example.md");
+                StateHasChanged();
+            }
         }
 
-        protected async void OnImportClicked()
+        protected async void OnImportClicked(EventArgs e)
         {
             string path = String.IsNullOrWhiteSpace(FileUrl) ? "/sample-data/example.md" : FileUrl;
             ContentValue = await GetContentFromUrl(path);

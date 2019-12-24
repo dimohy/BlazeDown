@@ -96,7 +96,7 @@ else
     @((MarkupString)BuildHtmlFromMarkdown(Content))
 }
 
-@functions {
+@code {
 
 [Parameter]
 string Content { get; set; }
