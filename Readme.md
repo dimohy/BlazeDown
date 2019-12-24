@@ -1,4 +1,8 @@
-Forked from [EdCharbeneau/BlazeDown](https://gitgub.com/EdCharbeneau/BlazeDown)
+Forked from [EdCharbeneau/BlazeDown](https://github.com/EdCharbeneau/BlazeDown)
+
+EdCharbeneau's BlazeDown didn't compile, so I forked and applied .net standard 2.1 and the latest version of Blazor and caught a compilation error.
+
+------
 
 # BlazeDown
 
