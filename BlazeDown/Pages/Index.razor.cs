@@ -21,14 +21,14 @@ namespace BlazeDown.Pages
         {
             if (firstRender == true)
             {
-                ContentValue = await GetContentFromUrl("/sample-data/example.md");
+                ContentValue = await GetContentFromUrl("sample-data/example.md");
                 StateHasChanged();
             }
         }
 
         protected async void OnImportClicked(EventArgs e)
         {
-            string path = String.IsNullOrWhiteSpace(FileUrl) ? "/sample-data/example.md" : FileUrl;
+            string path = String.IsNullOrWhiteSpace(FileUrl) ? "sample-data/example.md" : FileUrl;
             ContentValue = await GetContentFromUrl(path);
             StateHasChanged();
         }

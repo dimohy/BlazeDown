@@ -9,12 +9,9 @@ namespace BlazeDown.Server
 {
     public class Program
     {
-        public static IWebHost BlazeDownWebHost { get; private set; }
-
         public static void Main(string[] args)
         {
-            BlazeDownWebHost = BuildWebHost(args);
-            BlazeDownWebHost.Run();
+            BuildWebHost(args).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
@@ -23,7 +20,7 @@ namespace BlazeDown.Server
                     .AddCommandLine(args)
                     .Build())
                 .UseStartup<Startup>()
-                .UseUrls("http://*:30002")
+                .UseUrls($"http://*:{(args.Length > 0 ? args[0] : "5000")}")
                 .Build();
     }
 
@@ -39,10 +36,10 @@ namespace BlazeDown.Server
                 switch (args[0])
                 {
                     case "install":
-                        InstallService(netDllPath, true);
+                        InstallService(netDllPath, args.Length > 1 ? args[1..^0] : null, true);
                         return;
                     case "uninstall":
-                        InstallService(netDllPath, false);
+                        InstallService(netDllPath, null, false);
                         return;
                     case "start":
                         ControlService(serviceName, "start");
@@ -62,20 +59,8 @@ namespace BlazeDown.Server
             Program.Main(args);
         }
 
-        static int InstallService(string netDllPath, bool doInstall)
+        static int InstallService(string netDllPath, string[] args, bool doInstall)
         {
-            var serviceFile = @"
-[Unit]
-Description={0} running on {1}
-[Service]
-WorkingDirectory={2}
-ExecStart={3} {4}
-KillSignal=SIGINT
-SyslogIdentifier={5}
-[Install]
-WantedBy=multi-user.target
-";
-
             var dllFileName = Path.GetFileName(netDllPath);
             var osName = Environment.OSVersion.ToString();
 
@@ -98,13 +83,31 @@ WantedBy=multi-user.target
             var exeName = Process.GetCurrentProcess().MainModule.FileName;
 
             var workingDir = Path.GetDirectoryName(fi.FullName);
-            var fullText = string.Format(serviceFile, dllFileName, osName, workingDir,
-                    exeName, fi.FullName, serviceName);
 
             string serviceFilePath = $"/etc/systemd/system/{serviceName}.service";
 
             if (doInstall == true)
             {
+                var execStart = "";
+                if (exeName.EndsWith("dotnet") == true)
+                    execStart = $"{exeName} {fi.FullName}";
+                else
+                    execStart = exeName;
+                var exeArgs = string.Concat(args ?? new[] { "" });
+
+                var fullText = $@"
+[Unit]
+Description={dllFileName} running on {osName}
+[Service]
+WorkingDirectory={workingDir}
+ExecStart={execStart} {exeArgs}
+KillSignal=SIGINT
+SyslogIdentifier={serviceName}
+[Install]
+WantedBy=multi-user.target
+";
+                Console.WriteLine(fullText);
+
                 File.WriteAllText(serviceFilePath, fullText);
                 WriteLog(serviceFilePath + " Created");
                 ControlService(serviceName, "enable");
@@ -147,4 +150,3 @@ WantedBy=multi-user.target
         }
     }
 }
-
